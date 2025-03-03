@@ -34,3 +34,13 @@ class UserSkillSerializer(serializers.ModelSerializer):
         model = UserSkill
         fields = '__all__'
 
+class CoursesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Cources
+        fields = '__all__'
+
+class MessagesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Messages
+        fields = '__all__'
+

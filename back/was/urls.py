@@ -9,7 +9,8 @@ router.register(r'users', views.AuthUserViewSet)
 router.register(r'form', views.UserFormViewSet)
 router.register(r'user-skill', views.UserSkillViewSet)
 router.register(r'skills', views.SkillsViewSet)
-
+router.register(r'messages', views.MessagesViewSet)
+router.register(r'cources', views.CourcesViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),

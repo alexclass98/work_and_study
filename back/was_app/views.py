@@ -24,3 +24,13 @@ class UserSkillViewSet(viewsets.ModelViewSet):
     # Описание класса лекарств, добавляем тут сериалайзер и поля для фильтрации
     queryset = UserSkill.objects.all()
     serializer_class = UserSkillSerializer
+
+class CourcesViewSet(viewsets.ModelViewSet):
+    # Описание класса лекарств, добавляем тут сериалайзер и поля для фильтрации
+    queryset = Cources.objects.all()
+    serializer_class = CoursesSerializer
+
+class MessagesViewSet(viewsets.ModelViewSet):
+    # Описание класса лекарств, добавляем тут сериалайзер и поля для фильтрации
+    queryset = Messages.objects.all()
+    serializer_class = MessagesSerializer
