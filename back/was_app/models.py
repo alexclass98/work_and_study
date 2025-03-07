@@ -72,6 +72,7 @@ class Messages(models.Model):
     parent_message_id = models.IntegerField(default=None)
     author = models.ForeignKey(AuthUser, on_delete=models.SET_NULL,  null=True)
     timestamp = models.DateTimeField(auto_now=True)
+    topic = models.CharField(max_length=255)
     text = models.CharField(max_length=1023)
 
 
