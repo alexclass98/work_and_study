@@ -1,0 +1,24 @@
+@layer tailwind-base, primevue, tailwind-utilities;
+
+@layer tailwind-base {
+  @tailwind base;
+}
+
+@layer tailwind-utilities {
+  @tailwind components;
+  @tailwind utilities;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+.p-button {
+  background: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+}
+
+:root {
+  --primary-color: #4CAF50;
+  --primary-color-text: #ffffff;
+}
