@@ -44,6 +44,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+import api from '../utils/api'
 
 const router = useRouter()
 const isLogin = ref(true)
@@ -65,13 +66,16 @@ const submitForm = async () => {
   try {
     if (isLogin.value) {
       // Логин
-      const response = await axios.post('http://127.0.0.1:8000/auth/jwt/create/', formData)
-      const { access } = response.data
+      const response = await api.post('/auth/jwt/create/', formData)
+      const { access, refresh } = response.data
+      console.log('Access Token:', access) // Логируем токен
+      console.log('Refresh Token:', refresh) // Логируем refresh-токен
       localStorage.setItem('accessToken', access)
+      localStorage.setItem('refreshToken', refresh) // Сохраняем refresh-токен
       router.push('/')
     } else {
       // Регистрация
-      await axios.post('http://127.0.0.1:8000/auth/users/', formData)
+      await api.post('/auth/users/', formData)
       isLogin.value = true
     }
   } catch (error) {

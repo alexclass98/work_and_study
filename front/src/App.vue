@@ -5,6 +5,18 @@ import Menubar from 'primevue/menubar'
 
 const router = useRouter()
 const route = useRoute()
+const isAuthenticated = ref(false)
+
+watch(() => route.path, (newPath) => {
+  const requiresAuth = route.matched.some(record => record.meta.requiresAuth)
+  const auth = localStorage.getItem('accessToken')
+
+  if (requiresAuth && !auth) {
+    router.push('/auth')
+  }
+
+  isAuthenticated.value = !!auth
+})
 
 // Пункты меню
 const items = ref([
@@ -18,13 +30,22 @@ const items = ref([
     label: 'Авторизация',
     icon: 'pi pi-sign-in',
     command: () => router.push('/auth'),
-    route: '/auth'
+    route: '/auth',
+    visible: () => !isAuthenticated.value
   },
   {
     label: 'Профиль',
     icon: 'pi pi-user',
     command: () => router.push('/profile'),
-    route: '/profile'
+    route: '/profile',
+    visible: () => isAuthenticated.value
+  },
+  {
+    label: 'Стена',
+    icon: 'pi pi-comments',
+    command: () => router.push('/wall'),
+    route: '/wall',
+    visible: () => isAuthenticated.value
   }
 ])
 

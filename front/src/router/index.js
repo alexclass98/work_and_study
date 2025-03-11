@@ -1,12 +1,19 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import {createRouter, createWebHistory} from 'vue-router'
 import Home from '../views/Home.vue'
 import Auth from '../views/Auth.vue'
 import Profile from '../views/Profile.vue' // Добавляем страницу профиля
+import Wall from '../views/Wall.vue'
 
 const routes = [
-    { path: '/', component: Home, meta: { requiresAuth: true } },
-    { path: '/auth', component: Auth },
-    { path: '/profile', component: Profile, meta: { requiresAuth: true } } // Профиль требует авторизации
+    {path: '/', component: Home, meta: {requiresAuth: true}},
+    {path: '/auth', component: Auth},
+    {path: '/profile', component: Profile, meta: {requiresAuth: true}}, // Профиль требует авторизации
+    {
+        path: '/wall',
+        name: 'Wall',
+        component: Wall,
+        meta: {requiresAuth: true}
+    }
 ]
 
 const router = createRouter({

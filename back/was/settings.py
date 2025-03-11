@@ -1,4 +1,3 @@
-
 from datetime import timedelta
 from pathlib import Path
 # from decouple import config
@@ -48,9 +47,21 @@ INSTALLED_APPS = [
     'django_filters',
     'corsheaders',
     'djoser',
+    'channels',
     # Наше приложение
     'was_app',
 ]
+
+ASGI_APPLICATION = 'was.asgi.application'
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
 #Описание авторизации через джосер
 DJOSER = {
     'PASSWORD_RESET_CONFIRM_URL': '#/password/reset/confirm/{uid}/{token}',
