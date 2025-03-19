@@ -18,7 +18,7 @@
 
         <div class="field">
           <label class="block text-900 font-medium mb-2">Пароль</label>
-          <Password v-model="form.password" class="w-full" />
+          <Password v-model="form.password" class="w-full custom-password" />
         </div>
 
         <Button
@@ -84,3 +84,9 @@ const submitForm = async () => {
   }
 }
 </script>
+
+<style scoped>
+.custom-password :deep(.p-password-input) {
+  width: 100%;
+}
+</style>
