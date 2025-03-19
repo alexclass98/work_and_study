@@ -1,6 +1,16 @@
-from django.urls import re_path
-from . import consumers
+import os
+from django.core.asgi import get_asgi_application
+from channels.routing import ProtocolTypeRouter, URLRouter
+from channels.auth import AuthMiddlewareStack
+import was.routing
 
-websocket_urlpatterns = [
-    re_path(r'ws/wall/$', consumers.WallConsumer.as_asgi()),
-]
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'was.settings')
+
+application = ProtocolTypeRouter({
+    "http": get_asgi_application(),
+    "websocket": AuthMiddlewareStack(
+        URLRouter(
+            was.routing.websocket_urlpatterns
+        )
+    ),
+})

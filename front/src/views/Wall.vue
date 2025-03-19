@@ -46,22 +46,52 @@ const ws = ref(null)
 const usersCache = ref({})
 
 const connectWebSocket = () => {
-  ws.value = new WebSocket('ws://localhost:8000/ws/wall/')
+  try {
+    ws.value = new WebSocket('ws://localhost:8000/ws/wall/')
 
-  ws.value.onmessage = (event) => {
-    const message = JSON.parse(event.data)
-    messages.value.unshift(message)
+    ws.value.onopen = () => {
+      console.log('WebSocket подключен')
+    }
+
+    ws.value.onmessage = (event) => {
+      try {
+        const message = JSON.parse(event.data)
+        messages.value = [message, ...messages.value]
+        fetchUser(message.author)
+      } catch (e) {
+        console.error('Ошибка обработки сообщения:', e)
+      }
+    }
+
+    ws.value.onerror = (error) => {
+      console.error('WebSocket error:', error)
+      //setTimeout(connectWebSocket, 3000)
+    }
+
+    ws.value.onclose = () => {
+      console.log('WebSocket закрыт. Переподключение...')
+      //setTimeout(connectWebSocket, 5000)
+    }
+  } catch (e) {
+    console.error('Ошибка создания WebSocket:', e)
   }
+}
 
-  ws.value.onerror = (error) => {
-    console.error('WebSocket error:', error)
+const fetchUser = async (userId) => {
+  if (!usersCache.value[userId]) {
+    try {
+      const response = await api.get(`/users/${userId}/`)
+      usersCache.value[userId] = response.data
+    } catch (error) {
+      console.error('Ошибка загрузки пользователя:', error)
+    }
   }
 }
 
 const getUserInitials = (userId) => {
   const user = usersCache.value[userId]
-  if (!user) return '??'
-  return `${user.first_name[0]}${user.last_name[0]}`
+  if (!user || !user.first_name || !user.last_name) return '??'
+  return `${user.first_name[0]?.toUpperCase() ?? ''}${user.last_name[0]?.toUpperCase() ?? ''}`
 }
 
 const getUserName = (userId) => {

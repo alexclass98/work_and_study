@@ -1,23 +1,28 @@
-import json
 from channels.generic.websocket import AsyncWebsocketConsumer
+import json
+
 
 class WallConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        await self.channel_layer.group_add("wall", self.channel_name)
+        # Принимаем соединение первым делом
         await self.accept()
 
-    async def disconnect(self, close_code):
-        await self.channel_layer.group_discard("wall", self.channel_name)
-
-    async def receive(self, text_data):
-        message = json.loads(text_data)
-        await self.channel_layer.group_send(
-            "wall",
-            {
-                "type": "wall.message",
-                "message": message
-            }
+        # Подключаемся к группе
+        await self.channel_layer.group_add(
+            "wall_updates",
+            self.channel_name
         )
+        print(f"WebSocket connected: {self.channel_name}")
 
-    async def wall_message(self, event):
+    async def disconnect(self, close_code):
+        # Отключаемся от группы
+        await self.channel_layer.group_discard(
+            "wall_updates",
+            self.channel_name
+        )
+        print(f"WebSocket disconnected: {self.channel_name}")
+
+    async def new_message(self, event):
+        # Отправляем сообщение клиенту
+        print(f"Sending message: {event['message']}")
         await self.send(text_data=json.dumps(event["message"]))

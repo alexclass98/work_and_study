@@ -27,10 +27,27 @@ CORS_ALLOWED_ORIGINS = [
 ]
 ALLOWED_HOSTS=['*']
 
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+CORS_ORIGIN_WHITELIST = [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+]
 
 REDIS_HOST = 'localhost'
-REDIS_PORT = 6379
+REDIS_PORT = 6380
 
+CORS_ALLOW_CREDENTIALS = True
 # Установленные пакеты
 
 INSTALLED_APPS = [
@@ -58,7 +75,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
+            "hosts": [("127.0.0.1", 6380)],
         },
     },
 }
