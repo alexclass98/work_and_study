@@ -6,20 +6,8 @@
       <div class="grid">
         <div class="col-12 lg:col-8 lg:col-offset-2">
           <div class="flex flex-column gap-3">
-            <div v-for="message in messages" :key="message.id" class="p-3 surface-section border-round shadow-1">
-              <div class="flex align-items-center mb-2">
-                <Avatar :label="getUserInitials(message.author)" class="mr-2" />
-                <div>
-                  <div class="font-bold">{{ getUserName(message.author) }}</div>
-                  <div class="text-sm text-color-secondary">
-                    {{ formatDate(message.timestamp) }}
-                  </div>
-                </div>
-              </div>
-              <div class="ml-5">
-                <h4 class="mt-0 mb-2">{{ message.topic }}</h4>
-                <p class="mt-0">{{ message.text }}</p>
-              </div>
+            <div v-for="message in structuredMessages" :key="message.id" class="p-3 surface-section border-round shadow-1">
+              <MessageItem :message="message" :usersCache="usersCache" @reply="replyToMessage" />
             </div>
           </div>
 
@@ -35,23 +23,25 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '../utils/api'
+import MessageItem from './MessageItem.vue'
 
 const router = useRouter()
 const messages = ref([])
 const newMessage = ref({ topic: '', text: '' })
+const replyMessage = ref({ topic: '', text: '', parent_message_id: null })
 const ws = ref(null)
 const usersCache = ref({})
+const showReplyForm = ref(false)
+const messageInput = ref(null)
 
 const connectWebSocket = () => {
   try {
     ws.value = new WebSocket('ws://localhost:8000/ws/wall/')
 
-    ws.value.onopen = () => {
-      console.log('WebSocket подключен')
-    }
+    ws.value.onopen = () => console.log('WebSocket подключен')
 
     ws.value.onmessage = (event) => {
       try {
@@ -63,15 +53,8 @@ const connectWebSocket = () => {
       }
     }
 
-    ws.value.onerror = (error) => {
-      console.error('WebSocket error:', error)
-      //setTimeout(connectWebSocket, 3000)
-    }
-
-    ws.value.onclose = () => {
-      console.log('WebSocket закрыт. Переподключение...')
-      //setTimeout(connectWebSocket, 5000)
-    }
+    ws.value.onerror = (error) => console.error('WebSocket error:', error)
+    ws.value.onclose = () => console.log('WebSocket закрыт. Переподключение...')
   } catch (e) {
     console.error('Ошибка создания WebSocket:', e)
   }
@@ -88,27 +71,11 @@ const fetchUser = async (userId) => {
   }
 }
 
-const getUserInitials = (userId) => {
-  const user = usersCache.value[userId]
-  if (!user || !user.first_name || !user.last_name) return '??'
-  return `${user.first_name[0]?.toUpperCase() ?? ''}${user.last_name[0]?.toUpperCase() ?? ''}`
-}
-
-const getUserName = (userId) => {
-  const user = usersCache.value[userId]
-  return user ? `${user.first_name} ${user.last_name}` : 'Неизвестный пользователь'
-}
-
-const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleString()
-}
-
 const loadMessages = async () => {
   try {
     const response = await api.get('/messages/')
     messages.value = response.data.reverse()
 
-    // Кэшируем информацию о пользователях
     const userIds = [...new Set(messages.value.map(m => m.author))]
     const usersRes = await api.post('/users/by_ids/', { ids: userIds })
     usersRes.data.forEach(user => {
@@ -119,19 +86,46 @@ const loadMessages = async () => {
   }
 }
 
+// Группировка сообщений по parent_message_id
+const structuredMessages = computed(() => {
+  const map = {}
+  messages.value.forEach(msg => (map[msg.id] = { ...msg, replies: [] }))
+
+  const rootMessages = []
+  messages.value.forEach(msg => {
+    if (msg.parent_message_id && map[msg.parent_message_id]) {
+      map[msg.parent_message_id].replies.push(map[msg.id])
+    } else {
+      rootMessages.push(map[msg.id])
+    }
+  })
+  return rootMessages
+})
+
 const sendMessage = async () => {
   if (!newMessage.value.text.trim()) return
 
   try {
-    const response = await api.post('/messages/', {
+    await api.post('/messages/', {
       ...newMessage.value,
       author: user.value.id
     })
-
-    newMessage.value = { topic: '', text: '' }
   } catch (error) {
     console.error('Ошибка отправки сообщения:', error)
   }
+}
+
+const replyToMessage = (message) => {
+  replyMessage.value.topic = `Ответ на: ${message.topic}`
+  replyMessage.value.parent_message_id = message.id
+  replyMessage.value.text = ''
+  showReplyForm.value = true
+
+  nextTick(() => {
+    if (messageInput.value) {
+      messageInput.value.focus()
+    }
+  })
 }
 
 onMounted(() => {

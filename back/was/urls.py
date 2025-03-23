@@ -8,7 +8,7 @@ from rest_framework import routers
 
 router = routers.DefaultRouter()
 router.register(r'users', views.AuthUserViewSet, basename='users')
-router.register(r'form', views.UserFormViewSet)
+router.register(r'form', views.UserFormViewSet, basename='form')
 router.register(r'user-skill', views.UserSkillViewSet)
 router.register(r'skills', views.SkillsViewSet)
 router.register(r'messages', views.MessagesViewSet)
