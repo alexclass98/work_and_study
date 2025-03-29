@@ -5,7 +5,8 @@ from rest_framework.decorators import api_view
 from .serializers import *
 from .models import *
 from rest_framework.decorators import action
-
+from rest_framework import generics
+from django_filters.rest_framework import DjangoFilterBackend
 
 class AuthUserViewSet(viewsets.ModelViewSet):
     queryset = AuthUser.objects.all()
@@ -32,6 +33,9 @@ class UserSkillViewSet(viewsets.ModelViewSet):
     # Описание класса лекарств, добавляем тут сериалайзер и поля для фильтрации
     queryset = UserSkill.objects.all()
     serializer_class = UserSkillSerializer
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = UserSkillFilter
+    search_fields = ['^user_id', '^skill_id']
 
 class CourcesViewSet(viewsets.ModelViewSet):
     # Описание класса лекарств, добавляем тут сериалайзер и поля для фильтрации
@@ -42,3 +46,4 @@ class MessagesViewSet(viewsets.ModelViewSet):
     # Описание класса лекарств, добавляем тут сериалайзер и поля для фильтрации
     queryset = Messages.objects.all()
     serializer_class = MessagesSerializer
+

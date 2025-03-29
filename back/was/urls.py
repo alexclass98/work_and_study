@@ -15,6 +15,9 @@ router.register(r'messages', views.MessagesViewSet)
 router.register(r'cources', views.CourcesViewSet)
 
 
+
+
+
 urlpatterns = [
 # WebSocket
     re_path(r'^ws/wall/$', consumers.WallConsumer.as_asgi()),

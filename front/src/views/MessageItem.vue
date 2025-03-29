@@ -14,7 +14,7 @@
 
       <!-- Форма ответа -->
       <div v-if="showReplyForm" class="mt-3">
-        <Textarea v-model="replyText" rows="2" class="w-full mb-2" placeholder="Введите ответ..." />
+        <InputText v-model="replyText" rows="2" class="w-full mb-2" placeholder="Введите ответ..." />
         <div class="flex gap-2">
           <Button label="Отправить" icon="pi pi-send" @click="sendReply" :disabled="!replyText.trim()" />
           <Button label="Отмена" @click="cancelReply" />
@@ -32,12 +32,13 @@
 <script setup>
 import { defineProps, ref } from 'vue'
 import api from '../utils/api'
+import InputText from 'primevue/inputtext'
 
 const props = defineProps({
   message: Object,
   usersCache: Object
 })
-
+const isLogin = ref(true)
 const showReplyForm = ref(false)
 const replyText = ref('')
 
@@ -51,19 +52,27 @@ const cancelReply = () => {
 }
 
 const sendReply = async () => {
-  if (!replyText.value.trim()) return
-
+  console.log(props.message)
+  console.log(replyText.value.trim())
+  const formData = new FormData()
+  formData.append('parent_message_id', props.message.id)
+  formData.append('text', replyText.value)
+  formData.append('topic', `Re: ${props.message.topic}`)
   try {
-    await api.post('/messages/', {
-      topic: `Ответ на: ${props.message.topic}`,
-      text: replyText.value,
-      parent_message_id: props.message.id,
-      author: 222 // здесь должен быть ID текущего пользователя
-    })
-    cancelReply()
+    const { data } = await api.get('/auth/users/me/')
+    user.value = data
+    formData.append('author', data.id)
+    
   } catch (error) {
-    console.error('Ошибка отправки ответа:', error)
+    console.error('Не зареган', error)
   }
+  try{
+    await api.post('/messages/', formData)
+    isLogin.value = true
+    location.reload()
+    cancelReply()
+  }catch (error){
+    console.error('Ошибка отправки', error)}
 }
 
 const getUserInitials = (userId) => {

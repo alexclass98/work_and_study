@@ -45,7 +45,50 @@
           </Card>
         </div>
       </div>
-
+      <div class="col-12 md:col-6">
+          <Card class="h-full">
+            <template #title>Навыки</template>
+            <template #content>
+              <div v-for="skill in skills" :key="skill.id" class="mb-3">
+                <div class="flex justify-content-between mb-2">
+                  <div class="flex align-items-center gap-2">
+                    <span>{{ skill.skill_name }} ({{ skill.category }})</span>
+                    <Tag 
+                      :value="skill.type === true ? 'Hard' : 'Soft'" 
+                      :severity="skill.type === true ? 'primary' : 'success'" 
+                      :icon="skill.type === true ? 'pi pi-cog' : 'pi pi-user'"
+                    />
+                  </div>
+                  <span>Уровень {{ skill.level }}/10</span>
+                  <Button label="Пройти заново" class="p-button-sm" @click="reconfirmSkill(skill)" />
+                </div>
+                <ProgressBar :value="skill.level * 10" />
+                
+              </div>
+            </template>
+          </Card>
+        </div>
+      <!-- Доступные навыки (не подтвержденные пользователем) -->
+  <div class="col-12 md:col-6">
+    <Card class="h-full">
+      <template #title>Доступные навыки</template>
+      <template #content>
+        <div v-for="skill in availableSkills" :key="skill.id" class="mb-3 border-bottom-1 surface-border pb-2">
+          <div class="flex justify-content-between align-items-center">
+            <div class="flex align-items-center gap-2">
+              <span>{{ skill.skill_name }} ({{ skill.category }})</span>
+              <Tag 
+                :value="skill.type === true ? 'Hard' : 'Soft'" 
+                :severity="skill.type === true ? 'primary' : 'success'" 
+                :icon="skill.type === true ? 'pi pi-cog' : 'pi pi-user'"
+              />
+            </div>
+            <Button label="Подтвердить" class="p-button-sm" @click="confirmSkill(skill)" />
+          </div>
+        </div>
+      </template>
+    </Card>
+  </div>
       <!-- Секция "Рекомендуемые курсы" -->
       <Card class="mt-3">
         <template #title>Рекомендуемые курсы</template>
@@ -73,19 +116,26 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Avatar from 'primevue/avatar'
-import Card from 'primevue/card'
-import Button from 'primevue/button'
-import InputText from 'primevue/inputtext'
+import ProgressBar from 'primevue/progressbar'
 import Tag from 'primevue/tag'
+import Card from 'primevue/card'
 import api from '../utils/api'
 
 const router = useRouter()
 
 const user = ref({})
 const userInfo = ref({})
+const skills = ref([])
+const allSkills = ref([])   // Все доступные навыки
 const courses = ref([])
-const isEditing = ref(false)
-const originalUserInfo = ref({}) // Хранение оригинальных данных на случай отмены
+const isEditing = ref(false) // Добавляем реактивную переменную
+
+const userSkillsIds = computed(() => skills.value.map(skill => skill.skill_id))
+
+const availableSkills = computed(() => 
+  allSkills.value.filter(skill => !userSkillsIds.value.includes(skill.id))
+)
+
 
 const userInitials = computed(() => {
   if (!user.value.first_name || !user.value.last_name) return '??'
@@ -105,16 +155,39 @@ const loadData = async () => {
     const { data } = await api.get('/auth/users/me/')
     user.value = data
 
-    const infoRes = await api.get('/form/')
-    userInfo.value = { ...infoRes.data[0] }
-    originalUserInfo.value = { ...infoRes.data[0] } // Сохранение копии данных
-
     const coursesRes = await api.get('/cources/')
     courses.value = coursesRes.data
+
+    const skillsRes = await api.get('/user-skill/')
+    const skillsListRes = await api.get('/skills/') 
+
+    // Создаем мапу { skill_id: skill_data }
+    const skillsMap = Object.fromEntries(skillsListRes.data.map(skill => [skill.id, skill]))
+
+    // Соединяем данные о навыках пользователя с полными данными о навыках
+    skills.value = skillsRes.data
+      .filter(skill => skill.user_id === data.id)
+      .map(skill => ({
+        ...skill,
+        skill_name: skillsMap[skill.skill_id]?.skill_name || 'Неизвестный навык',
+        category: skillsMap[skill.skill_id]?.category || 'Неизвестная категория',
+        type: skillsMap[skill.skill_id]?.type ?? 0 // Если type не найден, ставим 0 (Soft Skill)
+      }))
+
+      allSkills.value = skillsListRes.data
   } catch (error) {
     console.error('Ошибка загрузки данных:', error)
   }
 }
+
+const confirmSkill = (skill) => {
+  router.push(`/test/${skill.id}`)
+}
+
+const reconfirmSkill = (skill) => {
+  router.push(`/retest/${skill.id}`)
+}
+
 
 const editProfile = () => {
   isEditing.value = true
@@ -130,9 +203,8 @@ const saveProfile = async () => {
 }
 
 const cancelEdit = () => {
-  userInfo.value = { ...originalUserInfo.value } // Восстановление оригинальных данных
   isEditing.value = false
+  loadData() // Перезагрузка данных, чтобы отменить изменения
 }
-
 onMounted(loadData)
 </script>

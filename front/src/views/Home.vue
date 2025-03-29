@@ -7,28 +7,25 @@
       </div>
 
       <div class="grid">
-        <div class="col-12 md:col-4">
-          <Card class="h-full">
-            <template #title>Ваши навыки</template>
-            <template #content>
-              <div v-for="skill in skills" :key="skill.id">
-                {{ skill.skill_name }} - Уровень {{ skill.level }}
+            <div class="col-12 md:col-8">
+              <Card class="mt-3">
+        <template #title>Рекомендуемые курсы</template>
+        <template #content>
+          <div class="grid">
+            <div v-for="course in courses" :key="course.id" class="col-12 md:col-4">
+              <div class="border-round surface-section shadow-2 p-3">
+                <h3 class="text-xl mb-2">{{ course.name }}</h3>
+                <div class="flex justify-content-between mb-3">
+                  <Tag :value="'Сложность: ' + course.difficulty" />
+                  <Tag :value="course.duration_hrs + ' часов'" icon="pi pi-clock" />
+                </div>
+                <p class="line-height-3">{{ course.description }}</p>
+                <Button label="Подробнее" class="mt-3" />
               </div>
-            </template>
-          </Card>
-        </div>
-
-        <div class="col-12 md:col-8">
-          <Card class="h-full">
-            <template #title>Рекомендуемые курсы</template>
-            <template #content>
-              <DataTable :value="courses">
-                <Column field="name" header="Название"></Column>
-                <Column field="difficulty" header="Сложность"></Column>
-                <Column field="duration_hrs" header="Длительность (часы)"></Column>
-              </DataTable>
-            </template>
-          </Card>
+            </div>
+          </div>
+        </template>
+      </Card>
         </div>
       </div>
     </div>
