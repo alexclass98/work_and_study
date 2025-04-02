@@ -15,6 +15,7 @@
     <!-- Отображаем текущий уровень -->
     <div v-if="userSkill" class="mt-4">
       <p class="text-lg">Текущий уровень: {{ userSkill.level }}</p>
+      <ProgressBar :value="userSkill.level * 10" />
     </div>
 
     <Button label="Пройти заново" icon="pi pi-refresh" class="mt-4 p-button-lg" @click="toggleTest" />
@@ -86,10 +87,7 @@ const recompleteTest = async () => {
       level: level,
     })
 
-    // Оповещаем пользователя о завершении теста
-    alert('Вы успешно обновили уровень навыка.')
-
-    // Переходим на страницу профиля после завершения теста
+    
     router.push('/profile') // Это будет путь к странице профиля, при необходимости можно изменить
   } catch (error) {
     console.error('Ошибка обновления уровня навыка:', error)
