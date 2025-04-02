@@ -197,6 +197,7 @@ const saveProfile = async () => {
   try {
     await api.put(`/form/${userInfo.value.form_id}/`, userInfo.value)
     isEditing.value = false
+    location.reload();
   } catch (error) {
     console.error('Ошибка при сохранении данных:', error)
   }
