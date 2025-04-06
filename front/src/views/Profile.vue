@@ -40,23 +40,23 @@
       <div v-if="isEditing" class="mb-5 surface-100 border-round p-4">
         <h3 class="mt-0 mb-4">Редактирование профиля</h3>
         <div class="grid formgrid">
-          <div class="field col-12 md:col-6">
+          <div class="field align-items-center gap-2 col-12 md:col-6">
             <label for="surname" class="block text-900 font-medium mb-2">Фамилия</label>
             <InputText id="surname" v-model="editableUserInfo.surname" class="w-full"/>
           </div>
-          <div class="field col-12 md:col-6">
+          <div class="field align-items-center gap-2 col-12 md:col-6">
             <label for="middlename" class="block text-900 font-medium mb-2">Отчество</label>
             <InputText id="middlename" v-model="editableUserInfo.middlename" class="w-full"/>
           </div>
-          <div class="field col-12 md:col-6">
+          <div class="field align-items-center gap-2 col-12 md:col-6">
             <label for="edit-city" class="block text-900 font-medium mb-2">Город</label>
             <InputText id="edit-city" v-model="editableUserInfo.city" class="w-full"/>
           </div>
-          <div class="field col-12 md:col-6">
+          <div class="field align-items-center gap-2 col-12 md:col-6">
             <label for="edit-country" class="block text-900 font-medium mb-2">Страна</label>
             <InputText id="edit-country" v-model="editableUserInfo.country" class="w-full"/>
           </div>
-          <div class="field col-12 md:col-6">
+          <div class="field align-items-center gap-2 col-12 md:col-6">
             <label for="gender" class="block text-900 font-medium mb-2">Пол</label>
             <Dropdown id="gender" v-model="editableUserInfo.gender" :options="genderOptions" optionLabel="label"
                       optionValue="value" placeholder="Выберите пол" class="w-full"/>

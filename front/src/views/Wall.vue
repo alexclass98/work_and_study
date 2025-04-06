@@ -3,20 +3,18 @@
     <div class="surface-card shadow-2 p-3 border-round">
       <h1 class="text-3xl mb-5">Общая лента</h1>
       <div class="mt-5 p-3 surface-section border-round shadow-2">
-        <InputText v-model="newMessage.topic" placeholder="Тема сообщения" class="w-full mb-3" />
-        <InputText v-model="newMessage.text"  rows="3" placeholder="Текст" class="w-full mb-3" />
-
-        <Button label="Отправить" icon="pi pi-send" @click="sendMessage" />
+        <InputText v-model="newMessage.topic" placeholder="Тема сообщения" class="w-full mb-3"/>
+        <InputText v-model="newMessage.text" rows="3" placeholder="Текст" class="w-full mb-3"/>
+        <Button label="Отправить" icon="pi pi-send" @click="sendMessage"/>
       </div>
       <div class="mt-5 p-3 grid">
         <div class="col-12 lg:col-8 lg:col-offset-2">
           <div class="flex flex-column gap-3">
-            <div v-for="message in structuredMessages" :key="message.id" class="p-3 surface-section border-round shadow-1">
-              <MessageItem :message="message" :usersCache="usersCache" @reply="replyToMessage" />
+            <div v-for="message in structuredMessages" :key="message.id"
+                 class="p-3 surface-section border-round shadow-1">
+              <MessageItem :message="message" :usersCache="usersCache" @reply="replyToMessage"/>
             </div>
           </div>
-
-
         </div>
       </div>
     </div>
@@ -24,19 +22,18 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, computed, nextTick } from 'vue'
-import { useRouter } from 'vue-router'
+import {ref, onMounted, onBeforeUnmount, computed, nextTick} from 'vue'
+import {useRouter} from 'vue-router'
 import api from '../utils/api'
 import MessageItem from './MessageItem.vue'
 
 const router = useRouter()
 const messages = ref([])
-const newMessage = ref({ topic: '', text: '' })
-const replyMessage = ref({ topic: '', text: '', parent_message_id: null })
+const newMessage = ref({topic: '', text: ''})
+const replyMessage = ref({topic: '', text: '', parent_message_id: null})
 const usersCache = ref({})
 const showReplyForm = ref(false)
 const messageInput = ref(null)
-const isLogin = ref(true)
 const isLogin = ref(true)
 
 const fetchUser = async (userId) => {
@@ -56,7 +53,7 @@ const loadMessages = async () => {
     messages.value = response.data.reverse()
 
     const userIds = [...new Set(messages.value.map(m => m.author))]
-    const usersRes = await api.post('/users/by_ids/', { ids: userIds })
+    const usersRes = await api.post('/users/by_ids/', {ids: userIds})
     usersRes.data.forEach(user => {
       usersCache.value[user.id] = user
     })
@@ -67,7 +64,7 @@ const loadMessages = async () => {
 
 const structuredMessages = computed(() => {
   const map = {}
-  messages.value.forEach(msg => (map[msg.id] = { ...msg, replies: [] }))
+  messages.value.forEach(msg => (map[msg.id] = {...msg, replies: []}))
 
   const rootMessages = []
   messages.value.forEach(msg => {
@@ -87,7 +84,7 @@ const sendMessage = async () => {
   formData.append('topic', newMessage.value.topic);
 
   try {
-    const { data } = await api.get('/auth/users/me/');
+    const {data} = await api.get('/auth/users/me/');
     formData.append('author', data.id);
   } catch (error) {
     console.error('Ошибка получения пользователя', error);
@@ -99,13 +96,7 @@ const sendMessage = async () => {
     location.reload();
     newMessage.value.text = '';
     newMessage.value.topic = '';
-    await api.post('/messages/', formData);
-    isLogin.value = true;
-    location.reload();
-    newMessage.value.text = '';
-    newMessage.value.topic = '';
   } catch (error) {
-    console.error('Ошибка отправки сообщения:', error);
     console.error('Ошибка отправки сообщения:', error);
   }
 }
@@ -115,22 +106,15 @@ const replyToMessage = (message) => {
   replyMessage.value.parent_message_id = message.id;
   replyMessage.value.text = '';
   showReplyForm.value = true;
-  replyMessage.value.topic = `Ответ на: ${message.topic}`;
-  replyMessage.value.parent_message_id = message.id;
-  replyMessage.value.text = '';
-  showReplyForm.value = true;
 
   nextTick(() => {
     if (messageInput.value) {
       messageInput.value.focus();
-      messageInput.value.focus();
     }
-  });
   });
 }
 
 onMounted(() => {
-  loadMessages();
   loadMessages();
 })
 </script>
