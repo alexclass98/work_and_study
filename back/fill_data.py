@@ -17,13 +17,13 @@ def create_test_data():
 
     # Создание навыков (если они ещё не созданы)
     if not Skills.objects.filter(skill_name='Python').exists():
-        Skills.objects.create(type=True, skill_name='Python', category='Programming', test='Python Test')
+        Skills.objects.create(type=True, skill_name='Python', category='Programming', test='')
     if not Skills.objects.filter(skill_name='Communication').exists():
-        Skills.objects.create(type=False, skill_name='Communication', category='Soft Skills', test='Communication Test')
+        Skills.objects.create(type=False, skill_name='Communication', category='Soft Skills', test='')
     if not Skills.objects.filter(skill_name='JavaScript').exists():
-        Skills.objects.create(type=True, skill_name='JavaScript', category='Programming', test='JavaScript Test')
+        Skills.objects.create(type=True, skill_name='JavaScript', category='Programming', test='https://voverg.github.io/js-apps/frontend-quiz/index.html')
     if not Skills.objects.filter(skill_name='Teamwork').exists():
-        Skills.objects.create(type=False, skill_name='Teamwork', category='Soft Skills', test='Teamwork Test')
+        Skills.objects.create(type=False, skill_name='Teamwork', category='Soft Skills', test='')
 
     # Получаем навыки
     python_skill = Skills.objects.filter(skill_name='Python').first()

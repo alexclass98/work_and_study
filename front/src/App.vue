@@ -2,6 +2,7 @@
 import {ref, watch} from 'vue'
 import {useRouter, useRoute} from 'vue-router'
 import Menubar from 'primevue/menubar'
+import Toast from 'primevue/toast';
 
 const router = useRouter()
 const route = useRoute()
@@ -82,6 +83,7 @@ watch(
     <div class="content">
       <router-view></router-view>
     </div>
+    <Toast />
   </div>
 </template>
 
@@ -101,6 +103,15 @@ watch(
 .p-menubar {
   border-radius: 0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 0.5rem;
+}
+
+.p-menuitem > span {
+  margin-right: 0.5rem; /* Отступ между иконкой и текстом */
+}
+
+.p-menuitem {
+  padding: 0.25rem 1.5rem; /* Отступы сверху/снизу и слева/справа */
 }
 
 /* Зелёная тема для кнопок */

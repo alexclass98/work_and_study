@@ -1,8 +1,11 @@
 import {createRouter, createWebHistory} from 'vue-router'
 import Home from '../views/Home.vue'
 import Auth from '../views/Auth.vue'
+import CompleteProfilePage from '../views/CompleteProfilePage.vue'
 import Profile from '../views/Profile.vue' // Добавляем страницу профиля
 import Wall from '../views/Wall.vue'
+import TestPage from '../views/TestPage.vue'
+import ReTestPage from '../views/ReTestPage.vue'
 
 const routes = [
     {path: '/', component: Home, meta: {requiresAuth: true}},
@@ -13,8 +16,29 @@ const routes = [
         name: 'Wall',
         component: Wall,
         meta: {requiresAuth: true}
-    }
+    },
+    {
+        path: '/complete-profile',
+        name: 'CompleteProfile',
+        component: CompleteProfilePage,
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/test/:id',
+        name: 'TestPage',
+        component: TestPage,
+        props: true,
+        meta: {requiresAuth: true}
+      },
+      {
+        path: '/retest/:id',
+        name: 'ReTestPage',
+        component: ReTestPage,
+        props: true,
+        meta: {requiresAuth: true}
+      }
 ]
+
 
 const router = createRouter({
     history: createWebHistory(),

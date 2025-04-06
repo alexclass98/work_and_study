@@ -1,13 +1,14 @@
 from .models import *
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+from django_filters import rest_framework as filters
 
 User = get_user_model()
 
 class AuthUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'password')
+        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'password')
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
@@ -44,3 +45,12 @@ class MessagesSerializer(serializers.ModelSerializer):
         model = Messages
         fields = '__all__'
 
+
+class UserSkillFilter(filters.FilterSet):
+    pass
+    user_id = filters.NumberFilter(field_name='user_id', lookup_expr='exact')
+    skill_id = filters.NumberFilter(field_name='skill_id', lookup_expr='exact')
+
+    class Meta:
+        model = UserSkill
+        fields = ['user_id', 'skill_id']
