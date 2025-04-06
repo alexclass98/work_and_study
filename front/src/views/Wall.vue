@@ -37,6 +37,7 @@ const usersCache = ref({})
 const showReplyForm = ref(false)
 const messageInput = ref(null)
 const isLogin = ref(true)
+const isLogin = ref(true)
 
 const fetchUser = async (userId) => {
   if (!usersCache.value[userId]) {
@@ -98,7 +99,13 @@ const sendMessage = async () => {
     location.reload();
     newMessage.value.text = '';
     newMessage.value.topic = '';
+    await api.post('/messages/', formData);
+    isLogin.value = true;
+    location.reload();
+    newMessage.value.text = '';
+    newMessage.value.topic = '';
   } catch (error) {
+    console.error('Ошибка отправки сообщения:', error);
     console.error('Ошибка отправки сообщения:', error);
   }
 }
@@ -108,15 +115,22 @@ const replyToMessage = (message) => {
   replyMessage.value.parent_message_id = message.id;
   replyMessage.value.text = '';
   showReplyForm.value = true;
+  replyMessage.value.topic = `Ответ на: ${message.topic}`;
+  replyMessage.value.parent_message_id = message.id;
+  replyMessage.value.text = '';
+  showReplyForm.value = true;
 
   nextTick(() => {
     if (messageInput.value) {
       messageInput.value.focus();
+      messageInput.value.focus();
     }
+  });
   });
 }
 
 onMounted(() => {
+  loadMessages();
   loadMessages();
 })
 </script>
