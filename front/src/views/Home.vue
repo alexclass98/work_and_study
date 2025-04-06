@@ -2,13 +2,13 @@
   <div class="surface-ground min-h-screen p-3">
     <div class="surface-card shadow-2 p-3 border-round">
       <div class="flex justify-content-between mb-3">
-        <h1 class="text-3xl text-primary">Добро пожаловать, {{ user.username }}!</h1>
-        <Button label="Выйти" @click="logout" />
+        <h1 class="text-3xl text-primary">Добро пожаловать! {{ user.username }}</h1>
+        <Button v-if="!user.value" label="Войти" @click="logout" />
+        <Button v-else label="Выйти" @click="logout" />
       </div>
-
-      <div class="grid">
-            <div class="col-12 md:col-8">
-              <Card class="mt-3">
+    </div>
+    
+      <Card class="mt-3">
         <template #title>Рекомендуемые курсы</template>
         <template #content>
           <div class="grid">
@@ -26,9 +26,7 @@
           </div>
         </template>
       </Card>
-        </div>
-      </div>
-    </div>
+   
   </div>
 </template>
 
@@ -39,7 +37,7 @@ import api from '../utils/api'
 
 const router = useRouter()
 const user = ref({})
-const skills = ref([])
+
 const courses = ref([])
 
 const logout = () => {
@@ -51,14 +49,12 @@ onMounted(async () => {
   try {
     const { data } = await api.get('/auth/users/me/')
     user.value = data
-
-    const skillsRes = await api.get('/user-skill/')
-    skills.value = skillsRes.data
-
     const coursesRes = await api.get('/cources/')
     courses.value = coursesRes.data
+    console.log(courses.value)
   } catch (error) {
     console.error('Data fetching error:', error)
   }
+  
 })
 </script>

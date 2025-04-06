@@ -2,6 +2,7 @@
 import {ref, watch} from 'vue'
 import {useRouter, useRoute} from 'vue-router'
 import Menubar from 'primevue/menubar'
+import Toast from 'primevue/toast';
 
 const router = useRouter()
 const route = useRoute()
@@ -82,6 +83,7 @@ watch(
     <div class="content">
       <router-view></router-view>
     </div>
+    <Toast />
   </div>
 </template>
 

@@ -2,8 +2,13 @@
   <div class="surface-ground p-3">
     <div class="surface-card shadow-2 p-3 border-round">
       <h1 class="text-3xl mb-5">Общая лента</h1>
+      <div class="mt-5 p-3 surface-section border-round shadow-2">
+        <InputText v-model="newMessage.topic" placeholder="Тема сообщения" class="w-full mb-3" />
+        <InputText v-model="newMessage.text"  rows="3" placeholder="Текст" class="w-full mb-3" />
 
-      <div class="grid">
+        <Button label="Отправить" icon="pi pi-send" @click="sendMessage" />
+      </div>
+      <div class="mt-5 p-3 grid">
         <div class="col-12 lg:col-8 lg:col-offset-2">
           <div class="flex flex-column gap-3">
             <div v-for="message in structuredMessages" :key="message.id" class="p-3 surface-section border-round shadow-1">
@@ -11,11 +16,7 @@
             </div>
           </div>
 
-          <div class="mt-5 p-3 surface-section border-round shadow-2">
-            <InputText v-model="newMessage.topic" placeholder="Тема сообщения" class="w-full mb-3" />
-            <Textarea v-model="newMessage.text" rows="3" class="w-full mb-3" />
-            <Button label="Отправить" icon="pi pi-send" @click="sendMessage" />
-          </div>
+
         </div>
       </div>
     </div>
@@ -32,33 +33,10 @@ const router = useRouter()
 const messages = ref([])
 const newMessage = ref({ topic: '', text: '' })
 const replyMessage = ref({ topic: '', text: '', parent_message_id: null })
-const ws = ref(null)
 const usersCache = ref({})
 const showReplyForm = ref(false)
 const messageInput = ref(null)
-
-const connectWebSocket = () => {
-  try {
-    ws.value = new WebSocket('ws://localhost:8000/ws/wall/')
-
-    ws.value.onopen = () => console.log('WebSocket подключен')
-
-    ws.value.onmessage = (event) => {
-      try {
-        const message = JSON.parse(event.data)
-        messages.value = [message, ...messages.value]
-        fetchUser(message.author)
-      } catch (e) {
-        console.error('Ошибка обработки сообщения:', e)
-      }
-    }
-
-    ws.value.onerror = (error) => console.error('WebSocket error:', error)
-    ws.value.onclose = () => console.log('WebSocket закрыт. Переподключение...')
-  } catch (e) {
-    console.error('Ошибка создания WebSocket:', e)
-  }
-}
+const isLogin = ref(true)
 
 const fetchUser = async (userId) => {
   if (!usersCache.value[userId]) {
@@ -86,7 +64,6 @@ const loadMessages = async () => {
   }
 }
 
-// Группировка сообщений по parent_message_id
 const structuredMessages = computed(() => {
   const map = {}
   messages.value.forEach(msg => (map[msg.id] = { ...msg, replies: [] }))
@@ -103,37 +80,43 @@ const structuredMessages = computed(() => {
 })
 
 const sendMessage = async () => {
-  if (!newMessage.value.text.trim()) return
+  const formData = new FormData();
+  formData.append('parent_message_id', 0);
+  formData.append('text', newMessage.value.text);
+  formData.append('topic', newMessage.value.topic);
 
   try {
-    await api.post('/messages/', {
-      ...newMessage.value,
-      author: user.value.id
-    })
+    const { data } = await api.get('/auth/users/me/');
+    formData.append('author', data.id);
   } catch (error) {
-    console.error('Ошибка отправки сообщения:', error)
+    console.error('Ошибка получения пользователя', error);
+  }
+
+  try {
+    await api.post('/messages/', formData);
+    isLogin.value = true;
+    location.reload();
+    newMessage.value.text = '';
+    newMessage.value.topic = '';
+  } catch (error) {
+    console.error('Ошибка отправки сообщения:', error);
   }
 }
 
 const replyToMessage = (message) => {
-  replyMessage.value.topic = `Ответ на: ${message.topic}`
-  replyMessage.value.parent_message_id = message.id
-  replyMessage.value.text = ''
-  showReplyForm.value = true
+  replyMessage.value.topic = `Ответ на: ${message.topic}`;
+  replyMessage.value.parent_message_id = message.id;
+  replyMessage.value.text = '';
+  showReplyForm.value = true;
 
   nextTick(() => {
     if (messageInput.value) {
-      messageInput.value.focus()
+      messageInput.value.focus();
     }
-  })
+  });
 }
 
 onMounted(() => {
-  loadMessages()
-  connectWebSocket()
-})
-
-onBeforeUnmount(() => {
-  if (ws.value) ws.value.close()
+  loadMessages();
 })
 </script>
